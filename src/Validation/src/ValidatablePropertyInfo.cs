@@ -7,6 +7,55 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.Extensions.Validation;
 
 /// <summary>
+/// This shouldn't be shipped.
+/// </summary>
+public static class ThisMustNotBeShippedAndIsOnlyTemporarilyUntilRuntimeAddsTheAsyncAPIs
+{
+    /// <summary>
+    /// This shouldn't be shipped.
+    /// </summary>
+    extension(ValidationAttribute validationAttribute)
+    {
+        /// <summary>
+        /// This shouldn't be shipped.
+        /// </summary>
+        public ValueTask<bool> IsValidAsync(object? value, ValidationContext _, CancellationToken cancellationToken)
+            => cancellationToken.IsCancellationRequested
+                ? ValueTask.FromCanceled<bool>(cancellationToken)
+                : ValueTask.FromResult(validationAttribute.IsValid(value));
+
+        /// <summary>
+        /// This shouldn't be shipped.
+        /// </summary>
+        public ValueTask<ValidationResult?> GetValidationResultAsync(object? value, ValidationContext validationContext, CancellationToken cancellationToken)
+            => cancellationToken.IsCancellationRequested
+                ? ValueTask.FromCanceled<ValidationResult?>(cancellationToken)
+                : ValueTask.FromResult(validationAttribute.GetValidationResult(value, validationContext));
+    }
+}
+
+/// <summary>
+/// This shouldn't be shipped.
+/// </summary>
+public abstract class AsyncValidationAttribute : ValidationAttribute
+{
+    /// <summary>
+    /// Always throws <see cref="NotSupportedException"/>. Subtypes must implement IsValidAsync instead.
+    /// </summary>
+    public sealed override bool IsValid(object? value)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Always throws <see cref="NotSupportedException"/>. Subtypes must implement IsValidAsync instead.
+    /// </summary>
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        => throw new NotSupportedException();
+
+    // We are supposed to be able to override IsValidAsync etc, but as they are simply extension members, they cannot be virtual :/
+    // Not sure if we can have an easy way to prototype until runtime adds the APIs.
+}
+
+/// <summary>
 /// Contains validation information for a member of a type.
 /// </summary>
 [Experimental("ASP0029", UrlFormat = "https://aka.ms/aspnet/analyzer/{0}")]
@@ -81,7 +130,7 @@ public abstract class ValidatablePropertyInfo : IValidatableInfo
         // Check required attribute first
         if (_requiredAttribute is not null || validationAttributes.TryGetRequiredAttribute(out _requiredAttribute))
         {
-            var result = _requiredAttribute.GetValidationResult(propertyValue, context.ValidationContext);
+            var result = await _requiredAttribute.GetValidationResultAsync(propertyValue, context.ValidationContext, cancellationToken);
 
             if (result is not null && result != ValidationResult.Success && result.ErrorMessage is not null)
             {
@@ -92,7 +141,7 @@ public abstract class ValidatablePropertyInfo : IValidatableInfo
         }
 
         // Validate any other attributes
-        ValidateValue(propertyValue, Name, context.CurrentValidationPath, validationAttributes, value);
+        await ValidateValueAsync(propertyValue, Name, context.CurrentValidationPath, validationAttributes, value);
 
         // Check if we've reached the maximum depth before validating complex properties
         if (context.CurrentDepth >= context.ValidationOptions.MaxDepth)
@@ -150,14 +199,14 @@ public abstract class ValidatablePropertyInfo : IValidatableInfo
             context.CurrentValidationPath = originalPrefix;
         }
 
-        void ValidateValue(object? val, string name, string errorPrefix, ValidationAttribute[] validationAttributes, object? container)
+        async Task ValidateValueAsync(object? val, string name, string errorPrefix, ValidationAttribute[] validationAttributes, object? container)
         {
             for (var i = 0; i < validationAttributes.Length; i++)
             {
                 var attribute = validationAttributes[i];
                 try
                 {
-                    var result = attribute.GetValidationResult(val, context.ValidationContext);
+                    var result = await attribute.GetValidationResultAsync(val, context.ValidationContext, cancellationToken);
                     if (result is not null && result != ValidationResult.Success && result.ErrorMessage is not null)
                     {
                         var key = errorPrefix.TrimStart('.');

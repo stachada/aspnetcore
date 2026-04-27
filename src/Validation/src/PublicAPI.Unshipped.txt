@@ -1,1 +1,9 @@
 #nullable enable
+Microsoft.Extensions.Validation.AsyncValidationAttribute
+Microsoft.Extensions.Validation.AsyncValidationAttribute.AsyncValidationAttribute() -> void
+Microsoft.Extensions.Validation.ThisMustNotBeShippedAndIsOnlyTemporarilyUntilRuntimeAddsTheAsyncAPIs
+Microsoft.Extensions.Validation.ThisMustNotBeShippedAndIsOnlyTemporarilyUntilRuntimeAddsTheAsyncAPIs.extension(System.ComponentModel.DataAnnotations.ValidationAttribute!)
+Microsoft.Extensions.Validation.ThisMustNotBeShippedAndIsOnlyTemporarilyUntilRuntimeAddsTheAsyncAPIs.extension(System.ComponentModel.DataAnnotations.ValidationAttribute!).GetValidationResultAsync(object? value, System.ComponentModel.DataAnnotations.ValidationContext! validationContext, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<System.ComponentModel.DataAnnotations.ValidationResult?>
+Microsoft.Extensions.Validation.ThisMustNotBeShippedAndIsOnlyTemporarilyUntilRuntimeAddsTheAsyncAPIs.extension(System.ComponentModel.DataAnnotations.ValidationAttribute!).IsValidAsync(object? value, System.ComponentModel.DataAnnotations.ValidationContext! _, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<bool>
+override Microsoft.Extensions.Validation.AsyncValidationAttribute.IsValid(object? value, System.ComponentModel.DataAnnotations.ValidationContext! validationContext) -> System.ComponentModel.DataAnnotations.ValidationResult?
+override sealed Microsoft.Extensions.Validation.AsyncValidationAttribute.IsValid(object? value) -> bool
